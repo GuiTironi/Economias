@@ -529,6 +529,157 @@
 
     updateUI();
   </script>
+<script>
 
+let transactions =
+JSON.parse(localStorage.getItem('transactions')) || [];
+
+function formatCurrency(value){
+
+    return value.toLocaleString('pt-BR',{
+        style:'currency',
+        currency:'BRL'
+    });
+
+}
+
+function saveTransactions(){
+
+    localStorage.setItem(
+        'transactions',
+        JSON.stringify(transactions)
+    );
+
+}
+
+function updateUI(){
+
+    const list =
+    document.getElementById('transactionList');
+
+    list.innerHTML = '';
+
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach((transaction,index) => {
+
+        if(transaction.type === 'income'){
+            income += transaction.amount;
+        }else{
+            expense += transaction.amount;
+        }
+
+        const div =
+        document.createElement('div');
+
+        div.classList.add('transaction');
+
+        div.innerHTML = `
+
+            <div>
+                <strong>
+                    ${transaction.description}
+                </strong>
+            </div>
+
+            <div style="display:flex; gap:15px; align-items:center;">
+
+                <div class="${
+                    transaction.type === 'income'
+                    ? 'positive'
+                    : 'negative'
+                }">
+
+                ${
+                    transaction.type === 'income'
+                    ? '+'
+                    : '-'
+                }
+
+                ${formatCurrency(transaction.amount)}
+
+                </div>
+
+                <button
+                    onclick="removeTransaction(${index})"
+                    style="
+                        width:auto;
+                        padding:8px 12px;
+                        background:#ff4d6d;
+                        color:white;
+                        border:none;
+                        border-radius:10px;
+                        cursor:pointer;
+                    "
+                >
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+            </div>
+
+        `;
+
+        list.appendChild(div);
+
+    });
+
+    document.getElementById('income').innerText =
+    '+ ' + formatCurrency(income);
+
+    document.getElementById('expense').innerText =
+    '- ' + formatCurrency(expense);
+
+    document.getElementById('balance').innerText =
+    formatCurrency(income - expense);
+
+}
+
+function addTransaction(){
+
+    const description =
+    document.getElementById('description').value;
+
+    const amount =
+    Number(document.getElementById('amount').value);
+
+    const type =
+    document.getElementById('type').value;
+
+    if(description === '' || amount <= 0){
+
+        alert('Preencha os campos!');
+
+        return;
+    }
+
+    transactions.push({
+        description,
+        amount,
+        type
+    });
+
+    saveTransactions();
+
+    updateUI();
+
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+
+}
+
+function removeTransaction(index){
+
+    transactions.splice(index,1);
+
+    saveTransactions();
+
+    updateUI();
+
+}
+
+updateUI();
+
+</script>
 </body>
 </html>
